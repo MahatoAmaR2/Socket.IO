@@ -23,9 +23,22 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("User Connected");
+  console.log("User Connected", socket.id);
+  // socket.emit("welcome",`Welcome to the server ${socket.id}`) // for me message
+  // socket.broadcast.emit("welcome",`Welcome to the server ${socket.id}`) // for other message
 
-  console.log("ID", socket.id);
+  socket.on("message", ({room, message}) =>{
+    console.log(room, message);
+    io.to(room).emit("receive-message", message)
+  })
+
+  socket.on("join-room", (room) => {
+    socket.join(room)
+  })
+
+  socket.on("disconnect", ()=>{
+    console.log("User Disconnected", socket.id);
+  })
 });
 
 server.listen(port, () => {
